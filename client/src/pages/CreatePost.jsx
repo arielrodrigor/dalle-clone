@@ -13,8 +13,33 @@ function CreatePost() {
     const [generatingImg, setGeneratingImg] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const GenerateImage = () => {
-
+    const GenerateImage = async () => {
+        if(form.prompt){
+            try{
+                setGeneratingImg(true)
+                const response = await fetch('http://localhost:8080/api/v1/dalle',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            prompt: form.prompt,
+                        }),
+                    })
+                const data = await response. json();
+                setForm({
+                    ...form, photo: `data:image/jpeg;base64, ${data.photo}` })
+            }
+            catch (error){
+                alert(error)
+            } finally {
+                setGeneratingImg(false)
+            }
+        }
+        else {
+            alert('Please enter a prompt')
+        }
     }
 
     const handleSubmit = () =>{
@@ -43,18 +68,19 @@ function CreatePost() {
             <form className={'mt-16 max-w-3xl'} onSubmit={handleSubmit}>
                 <div className={'flex flex-col gap-5'}>
                     <FormField
-                        labelName={'Your name'}
-                        type={'text'}
-                        name ={'name'}
-                        placeholder={'John Doe'}
+                        labelName="Your Name"
+                        type="text"
+                        name="name"
+                        placeholder="Ex., john doe"
                         value={form.name}
                         handleChange={handleChange}
                     />
+
                     <FormField
-                        labelName={'Prompt'}
-                        type={'text'}
-                        name ={'Prompt'}
-                        placeholder={'A plush toy robot sitting against a yellow wall'}
+                        labelName="Prompt"
+                        type="text"
+                        name="prompt"
+                        placeholder="An Impressionist oil painting of sunflowers in a purple vase…"
                         value={form.prompt}
                         handleChange={handleChange}
                         isSurpriseMe
